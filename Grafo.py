@@ -6,13 +6,24 @@
 #
 # Autor:    Bruno Artagoitia Vicente do Nascimento
 # Email:    bavn@cin.ufpe.br
-# Data:        2018-11-17
+# Data:        2018-11-19
 #
 # Descricao:  GRAFO LISTA4 Q1
 #
 # Licenca: Copyright(c) 2018 Bruno Artagoitia Vicente do Nascimento
 #
 ###############################################################################
+
+###############################################################################
+# QUESTÃO 2
+# A implemantação de um grafo com representacao matricial possui busca mais
+# rapida, em compensacao ele consome mais memoria. Aconselhavel para grafos 
+# pequenos.
+# A implementacao em lista representa economia de memoria, em compensacao
+# sua busca e um pouco mais demorada. Aconselhavel para grafos maiores.
+# O ideal seria uma representacao que fosse mista (Matriz X Lista)
+###############################################################################
+
 import numpy as np
 from LEG import No
 from LEG import LE
@@ -55,7 +66,7 @@ class GrafoMatriz:
 				self._matriz_grafo[tupla[0]][tupla[1]] = 1
 				if (self._direcao == False):
 					self._matriz_grafo[tupla[1]][tupla[0]] = 1
-	
+
 	def __repr__(self):
 		self._grafo_string = "["
 		for linha in self._matriz_grafo:
@@ -236,6 +247,37 @@ class GrafoMatriz:
 						self._matriz_grafo[self._num1][self._num2] = 1
 				self._arestas += 1
 
+	def MatrizLista(self):
+		self._listatuplas = []
+		if (self._peso == False):
+			self._countm = 0
+			for m in self._matriz_grafo:
+				self._countn = 0
+				for n in m:
+					if (n != 0):
+						self._tupla = (self._countm,self._countn)
+						print(self._tupla)
+						self._listatuplas.append(self._tupla)
+						self._countn += 1
+					else:
+						self._countn += 1
+				self._countm += 1
+		else:
+			self._countm = 0
+			for m in self._matriz_grafo:
+				self._countn = 0
+				for n in m:
+					if (n != 0):
+						self._tupla = (self._countm,self._countn,n)
+						print(self._tupla)
+						self._listatuplas.append(self._tupla)
+						self._countn += 1
+					else:
+						self._countn += 1
+				self._countm += 1
+		self._grafoLista = GrafoLista(self._listatuplas,self._direcao)
+		return self._grafoLista
+
 class GrafoLista:
 	'''
 	Parametros: lista ou vetor de tuplas: (vertice1,vertice2) indicando as arestas do grafo;
@@ -276,6 +318,7 @@ class GrafoLista:
 				self._listabase[tupla[0]].anexar(tupla[1])
 				if (self._direcao == False):
 					self._listabase[tupla[1]].anexar(tupla[0])
+
 	
 	def __repr__(self):
 		self._grafo_string = str(self._listabase)
@@ -487,3 +530,106 @@ class GrafoLista:
 		else:
 			self._arestas -= self._cont_arestas_removidas
 		self._vertices -= 1
+
+	def removeAresta(self,num1,num2):
+		'''
+		Dada uma aresta remove a aresta.
+		'''
+		self._num1 = num1
+		self._num2 = num2
+		if (self.existeAresta(self._num1,self._num2) == True):
+			self._cont_arestas_removidas = 0
+			self._ct = 0
+			for a in self._listabase[self._num1]:
+				if (a == self._num2):
+					self._listabase[self._num1].deletar(self._ct)
+					self._cont_arestas_removidas += 1
+					break
+				else:
+					self._ct += 1
+			if (self._direcao == False):
+				self._ct = 0
+				for a in self._listabase[self._num2]:
+					if (a == self._num1):
+						self._listabase[self._num2].deletar(self._ct)
+						break
+					else:
+						self._ct += 1
+			self._arestas -= self._cont_arestas_removidas
+		else:
+			print("Aresta inexistente")
+
+	
+	def adicionaAresta(self,num1,num2,peso = None):
+		'''
+		Dados dois numeros: adiciona aresta; se numero for maior que numero de vertices, adiciona
+		mais um vertice e a aresta. Se houver peso adiciona peso (3o. parametro).
+		'''
+		self._num1 = num1
+		self._num2 = num2
+		self._pesodado = peso
+		if (self.existeAresta(self._num1,self._num2) == True):
+			print("Aresta ja existe!")
+		else:
+			if ((self._num1 >= self.VE()[0]) or (self._num2 >= self.VE()[0])):
+				self._listabase_auxiliar = LE()
+				for n in range(self._vertices + 1):
+					self._sublista = LE()
+					self._listabase_auxiliar.anexar(self._sublista)
+				for l in range(len(self._listabase)):
+					for v in range(len(self._listabase[l])):
+						self._listabase_auxiliar[l].anexar(self._listabase[l][v])
+				if (self._direcao == False):
+					if (self._peso == True):
+						self._tuplapeso = (self._num2,self._pesodado)
+						self._listabase_auxiliar[self._num1].anexar(self._tuplapeso)
+						self._tuplapeso = (self._num1,self._pesodado)
+						self._listabase_auxiliar[self._num2].anexar(self._tuplapeso)
+					else:
+						self._listabase_auxiliar[self._num1].anexar(self._num2)
+						self._listabase_auxiliar[self._num2].anexar(self._num1)
+				else:
+					if (self._peso == True):
+						self._tuplapeso = (self._num2,self._pesodado)
+						self._listabase_auxiliar[self._num1].anexar(self._tuplapeso)
+					else:
+						self._listabase_auxiliar[self._num1].anexar(self._num2)
+				self._vertices += 1
+				self._arestas += 1
+				self._listabase = self._listabase_auxiliar
+			else:
+				if (self._direcao == False):
+					if (self._peso == True):
+						self._tuplapeso = (self._num2,self._pesodado)
+						self._listabase[self._num1].anexar(self._tuplapeso)
+						self._tuplapeso = (self._num1,self._pesodado)
+						self._listabase[self._num2].anexar(self._tuplapeso)
+					else:
+						self._listabase[self._num1].anexar(self._num2)
+						self._listabase[self._num2].anexar(self._num1)
+				else:
+					if (self._peso == True):
+						self._tuplapeso = (self._num2,self._pesodado)
+						self._listabase[self._num1].anexar(self._tuplapeso)
+					else:
+						self._listabase[self._num1].anexar(self._num2)
+				self._arestas += 1	
+
+	def ListaMatriz(self):
+		self._listatuplas = []
+		if (self._peso == False):
+			self._countm = 0
+			for m in self._listabase:
+				for n in m:
+					self._tupla = (self._countm,n)
+					self._listatuplas.append(self._tupla)
+				self._countm += 1					
+		else:
+			self._countm = 0
+			for m in self._listabase:
+				for n in m:
+					self._tupla = (self._countm,n[0],n[1])
+					self._listatuplas.append(self._tupla)
+				self._countm += 1
+		self._grafoMatriz = GrafoMatriz(self._listatuplas,self._direcao)
+		return self._grafoMatriz
