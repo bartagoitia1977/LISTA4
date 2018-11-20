@@ -16,12 +16,13 @@
 
 ###############################################################################
 # QUESTÃO 2
-# A implemantação de um grafo com representacao matricial possui busca mais
-# rapida, em compensacao ele consome mais memoria. Aconselhavel para grafos 
-# pequenos.
-# A implementacao em lista representa economia de memoria, em compensacao
-# sua busca e um pouco mais demorada. Aconselhavel para grafos maiores.
-# O ideal seria uma representacao que fosse mista (Matriz X Lista)
+# A implemantação de um grafo com representacao matricial (matriz de adjacencias)
+# possui busca mais rapida, em compensacao ele consome mais memoria.  
+# Aconselhavel para grafos pequenos mas cujas aplicacoes exijam mais rapidez.
+# A implementacao em lista de adjacencias representa economia de memoria, 
+# em compensacao sua busca e um pouco mais demorada pois sua base e formada por
+# listas encadeadas. Aconselhavel para aplicacoes com grafos maiores.
+# O ideal seria uma representacao que fosse mista (Matriz X Lista).
 ###############################################################################
 
 import numpy as np
@@ -248,6 +249,9 @@ class GrafoMatriz:
 				self._arestas += 1
 
 	def MatrizLista(self):
+		'''
+		Converte o grafo matriz de adjacencias retornando o grafo em lista de adjacencias.
+		'''
 		self._listatuplas = []
 		if (self._peso == False):
 			self._countm = 0
@@ -256,7 +260,6 @@ class GrafoMatriz:
 				for n in m:
 					if (n != 0):
 						self._tupla = (self._countm,self._countn)
-						print(self._tupla)
 						self._listatuplas.append(self._tupla)
 						self._countn += 1
 					else:
@@ -269,13 +272,12 @@ class GrafoMatriz:
 				for n in m:
 					if (n != 0):
 						self._tupla = (self._countm,self._countn,n)
-						print(self._tupla)
 						self._listatuplas.append(self._tupla)
 						self._countn += 1
 					else:
 						self._countn += 1
 				self._countm += 1
-		self._grafoLista = GrafoLista(self._listatuplas,self._direcao)
+		self._grafoLista = GrafoLista(self._listatuplas,True)
 		return self._grafoLista
 
 class GrafoLista:
@@ -509,9 +511,6 @@ class GrafoLista:
 		for l in self._listabase:
 			self._ct2 = 0
 			for x in l:
-				print(x)
-				print(self._ct1)
-				print(self._ct2)
 				if (self._peso == False):
 					if (x == self._vertice):
 						self._listabase[self._ct1].deletar(self._ct2)
@@ -616,6 +615,9 @@ class GrafoLista:
 				self._arestas += 1	
 
 	def ListaMatriz(self):
+		'''
+		Converte o grafo lista de adjacencias retornando o grafo em matriz de adjacencias.
+		'''
 		self._listatuplas = []
 		if (self._peso == False):
 			self._countm = 0
